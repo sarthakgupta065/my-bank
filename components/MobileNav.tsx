@@ -20,7 +20,7 @@ const MobileNav = ({ user }: MobileNavProps) => {
   const pathname = usePathname();
 
   return (
-    <section className="w-fulll max-w-[264px]">
+    <section className="w-full max-w-[264px]">
       <Sheet>
         <SheetTrigger>
           <Image
@@ -32,6 +32,7 @@ const MobileNav = ({ user }: MobileNavProps) => {
           />
         </SheetTrigger>
         <SheetContent side="left" className="border-none bg-white">
+          <SheetTitle className="sr-only">Navigation Menu</SheetTitle>
           <Link href="/" className="cursor-pointer flex items-center gap-1 px-4">
             <Image 
               src="/icons/logo.svg"
@@ -68,8 +69,6 @@ const MobileNav = ({ user }: MobileNavProps) => {
                   </SheetClose>
                 )
               })}
-
-              USER
               </nav>
             </SheetClose>
 

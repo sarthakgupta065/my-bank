@@ -76,7 +76,8 @@ export function formatAmount(amount: number): string {
   return formatter.format(amount);
 }
 
-export const parseStringify = (value: any) => JSON.parse(JSON.stringify(value));
+export const parseStringify = (value: any) =>
+  value !== undefined ? JSON.parse(JSON.stringify(value)) : null;
 
 export const removeSpecialCharacters = (value: string) => {
   return value.replace(/[^\w\s]/gi, "");
@@ -95,7 +96,7 @@ export function formUrlQuery({ params, key, value }: UrlQueryParams) {
 
   return qs.stringifyUrl(
     {
-      url: window.location.pathname,
+      url: typeof window !== "undefined" ? window.location.pathname : "",
       query: currentUrl,
     },
     { skipNull: true }

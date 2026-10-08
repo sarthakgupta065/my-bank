@@ -59,6 +59,14 @@ const PaymentTransferForm = ({ accounts }: PaymentTransferFormProps) => {
       });
       const senderBank = await getBank({ documentId: data.senderBank });
 
+      if (!senderBank) {
+        throw new Error("Sender bank account not found");
+      }
+
+      if (!receiverBank) {
+        throw new Error("Receiver bank account not found for the provided Sharable Id");
+      }
+
       const transferParams = {
         sourceFundingSourceUrl: senderBank.fundingSourceUrl,
         destinationFundingSourceUrl: receiverBank.fundingSourceUrl,
@@ -72,9 +80,9 @@ const PaymentTransferForm = ({ accounts }: PaymentTransferFormProps) => {
         const transaction = {
           name: data.name,
           amount: data.amount,
-          senderId: senderBank.userId.$id,
+          senderId: senderBank.userId?.$id || senderBank.userId || "",
           senderBankId: senderBank.$id,
-          receiverId: receiverBank.userId.$id,
+          receiverId: receiverBank.userId?.$id || receiverBank.userId || "",
           receiverBankId: receiverBank.$id,
           email: data.email,
         };
@@ -88,9 +96,9 @@ const PaymentTransferForm = ({ accounts }: PaymentTransferFormProps) => {
       }
     } catch (error) {
       console.error("Submitting create transfer request failed: ", error);
+    } finally {
+      setIsLoading(false);
     }
-
-    setIsLoading(false);
   };
 
   return (

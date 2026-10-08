@@ -8,16 +8,17 @@ import { getLoggedInUser } from '@/lib/actions/user.actions';
 const Home = async ({ searchParams: { id, page } }: SearchParamProps) => {
   const currentPage = Number(page as string) || 1;
   const loggedIn = await getLoggedInUser();
+
+  if (!loggedIn) return null;
+
   const accounts = await getAccounts({ 
     userId: loggedIn.$id 
   })
 
-  if(!accounts) return;
-  
-  const accountsData = accounts?.data;
+  const accountsData = accounts?.data || [];
   const appwriteItemId = (id as string) || accountsData[0]?.appwriteItemId;
 
-  const account = await getAccount({ appwriteItemId })
+  const account = appwriteItemId ? await getAccount({ appwriteItemId }) : null;
 
   return (
     <section className="home">
@@ -32,22 +33,31 @@ const Home = async ({ searchParams: { id, page } }: SearchParamProps) => {
 
           <TotalBalanceBox 
             accounts={accountsData}
-            totalBanks={accounts?.totalBanks}
-            totalCurrentBalance={accounts?.totalCurrentBalance}
+            totalBanks={accounts?.totalBanks || 0}
+            totalCurrentBalance={accounts?.totalCurrentBalance || 0}
           />
         </header>
 
-        <RecentTransactions 
-          accounts={accountsData}
-          transactions={account?.transactions}
-          appwriteItemId={appwriteItemId}
-          page={currentPage}
-        />
+        {accountsData.length > 0 ? (
+          <RecentTransactions 
+            accounts={accountsData}
+            transactions={account?.transactions}
+            appwriteItemId={appwriteItemId}
+            page={currentPage}
+          />
+        ) : (
+          <div className="flex flex-col gap-2 rounded-xl border border-dashed border-gray-300 p-8 text-center">
+            <h3 className="text-18 font-semibold text-gray-900">No bank accounts linked</h3>
+            <p className="text-14 text-gray-500">
+              Connect your first bank account using the sidebar or the button below to view transactions and balances.
+            </p>
+          </div>
+        )}
       </div>
 
       <RightSidebar 
         user={loggedIn}
-        transactions={account?.transactions}
+        transactions={account?.transactions || []}
         banks={accountsData?.slice(0, 2)}
       />
     </section>

@@ -6,16 +6,20 @@ import React from 'react'
 
 const MyBanks = async () => {
   const loggedIn = await getLoggedInUser();
+  if (!loggedIn) return null;
+
   const accounts = await getAccounts({ 
     userId: loggedIn.$id 
-  })
+  });
+
+  const accountsData = accounts?.data || [];
 
   return (
     <section className='flex'>
       <div className="my-banks">
         <HeaderBox 
           title="My Bank Accounts"
-          subtext="Effortlessly manage your banking activites."
+          subtext="Effortlessly manage your banking activities."
         />
 
         <div className="space-y-4">
@@ -23,13 +27,17 @@ const MyBanks = async () => {
             Your cards
           </h2>
           <div className="flex flex-wrap gap-6">
-            {accounts && accounts.data.map((a: Account) => (
-              <BankCard 
-                key={accounts.id}
-                account={a}
-                userName={loggedIn?.firstName}
-              />
-            ))}
+            {accountsData.length > 0 ? (
+              accountsData.map((a: Account) => (
+                <BankCard 
+                  key={a.id || a.appwriteItemId}
+                  account={a}
+                  userName={loggedIn?.firstName || 'User'}
+                />
+              ))
+            ) : (
+              <p className="text-16 text-gray-500">You haven&apos;t linked any bank accounts yet.</p>
+            )}
           </div>
         </div>
       </div>

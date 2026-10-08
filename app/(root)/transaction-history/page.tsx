@@ -9,27 +9,42 @@ import React from 'react'
 const TransactionHistory = async ({ searchParams: { id, page }}:SearchParamProps) => {
   const currentPage = Number(page as string) || 1;
   const loggedIn = await getLoggedInUser();
+
+  if (!loggedIn) return null;
+
   const accounts = await getAccounts({ 
     userId: loggedIn.$id 
-  })
+  });
 
-  if(!accounts) return;
+  if (!accounts || !accounts.data || accounts.data.length === 0) {
+    return (
+      <div className="transactions">
+        <div className="transactions-header">
+          <HeaderBox 
+            title="Transaction History"
+            subtext="See your bank details and transactions."
+          />
+        </div>
+        <p className="text-16 text-gray-500 py-8">No bank accounts or transactions found.</p>
+      </div>
+    );
+  }
   
   const accountsData = accounts?.data;
   const appwriteItemId = (id as string) || accountsData[0]?.appwriteItemId;
 
-  const account = await getAccount({ appwriteItemId })
+  const account = await getAccount({ appwriteItemId });
+  const allTransactions = account?.transactions || [];
 
+  const rowsPerPage = 10;
+  const totalPages = Math.ceil(allTransactions.length / rowsPerPage);
 
-const rowsPerPage = 10;
-const totalPages = Math.ceil(account?.transactions.length / rowsPerPage);
+  const indexOfLastTransaction = currentPage * rowsPerPage;
+  const indexOfFirstTransaction = indexOfLastTransaction - rowsPerPage;
 
-const indexOfLastTransaction = currentPage * rowsPerPage;
-const indexOfFirstTransaction = indexOfLastTransaction - rowsPerPage;
-
-const currentTransactions = account?.transactions.slice(
-  indexOfFirstTransaction, indexOfLastTransaction
-)
+  const currentTransactions = allTransactions.slice(
+    indexOfFirstTransaction, indexOfLastTransaction
+  );
   return (
     <div className="transactions">
       <div className="transactions-header">
